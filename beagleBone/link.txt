@@ -1,0 +1,5 @@
+http://beagleboard.org/black
+https://elinux.org/Beagleboard:BeagleBoneBlack#Books
+
+username:debian password: temppwd
+https://github.com/mcdeoliveira/rcpy
