@@ -4,13 +4,15 @@ import time
 
 def control(input_pid):
 	threshold = 0.02
-	pwm_scale = 100
+	pwm_scale = 40
+	state = False
 	
-	freq = abs(input_pid)*pwm_scale
+	freq = abs(input_pid)*pwm_scale+50
 	
 	if (abs(input_pid) < threshold):
 		msteering.stop()
-		return freq
+		state = True
+		return freq,state
 	
 	if input_pid >= 0:
 		msteering.turnLeft()
@@ -19,7 +21,7 @@ def control(input_pid):
 	
 	msteering.ctrlSpeed_PWM(freq)	
 	
-	return freq
+	return freq,state
 	
 
 	
@@ -39,9 +41,7 @@ if __name__ == "__main__":
 		while True:
 			adc = msteering.feedback_ADC()
 			pid=incPid.step(0.5,adc)
-			freq = control(pid)
+			freq,state = control(pid)
 			print("%.4f %.4f %.4f" %(adc,pid,freq))
-			
-
-			
+			print(state)
 			time.sleep(0.5) 

@@ -1,7 +1,7 @@
 import time
 import math
 import smbus
-i2c_bus = smbus.SMBus(2) # pins D9 19, 20, /dev/i2c-1
+i2c_bus = smbus.SMBus(2) # pins D9 19, 20, /dev/i2c-2
 
 PCA9685_ADDRESS    = 0x40
 MODE1              = 0x00
@@ -29,13 +29,14 @@ OUTDRV             = 0x04
 class PCA9685(object):
 	def __init__(self, address=PCA9685_ADDRESS, smbus=i2c_bus, **kwargs):
 		self._device = i2c_bus
+		self._address = address
 		self.set_all_pwm(0, 0)
-		self._device.write_byte_data(PCA9685_ADDRESS,MODE2, OUTDRV)
-		self._device.write_byte_data(PCA9685_ADDRESS,MODE1, ALLCALL)
+		self._device.write_byte_data(self._address,MODE2, OUTDRV)
+		self._device.write_byte_data(self._address,MODE1, ALLCALL)
 		time.sleep(0.005)  # wait for oscillator
-		mode1 = self._device.read_byte_data(PCA9685_ADDRESS,MODE1)
+		mode1 = self._device.read_byte_data(self._address,MODE1)
 		mode1 = mode1 & ~SLEEP  # wake up (reset sleep)
-		self._device.write_byte_data(PCA9685_ADDRESS,MODE1, mode1)
+		self._device.write_byte_data(self._address,MODE1, mode1)
 		time.sleep(0.005)  # wait for oscillator
 		
 
@@ -46,28 +47,28 @@ class PCA9685(object):
 		prescaleval /= float(freq_hz)
 		prescaleval -= 1.0
 		prescale = int(math.floor(prescaleval + 0.5))
-		oldmode = self._device.read_byte_data(PCA9685_ADDRESS,MODE1);
+		oldmode = self._device.read_byte_data(self._address,MODE1);
 		newmode = (oldmode & 0x7F) | 0x10    # sleep
-		self._device.write_byte_data(PCA9685_ADDRESS,MODE1, newmode)  # go to sleep
-		self._device.write_byte_data(PCA9685_ADDRESS,PRESCALE, prescale)
-		self._device.write_byte_data(PCA9685_ADDRESS,MODE1, oldmode)
+		self._device.write_byte_data(self._address,MODE1, newmode)  # go to sleep
+		self._device.write_byte_data(self._address,PRESCALE, prescale)
+		self._device.write_byte_data(self._address,MODE1, oldmode)
 		time.sleep(0.005)
-		self._device.write_byte_data(PCA9685_ADDRESS,MODE1, oldmode | 0x80)
+		self._device.write_byte_data(self._address,MODE1, oldmode | 0x80)
 	
 		
 	def set_all_pwm (self, on, off):
 		"""Sets all PWM channels."""
-		self._device.write_byte_data(PCA9685_ADDRESS,ALL_LED_ON_L, on & 0xFF)
-		self._device.write_byte_data(PCA9685_ADDRESS,ALL_LED_ON_H, on >> 8)
-		self._device.write_byte_data(PCA9685_ADDRESS,ALL_LED_OFF_L, off & 0xFF)
-		self._device.write_byte_data(PCA9685_ADDRESS,ALL_LED_OFF_H, off >> 8)
+		self._device.write_byte_data(self._address,ALL_LED_ON_L, on & 0xFF)
+		self._device.write_byte_data(self._address,ALL_LED_ON_H, on >> 8)
+		self._device.write_byte_data(self._address,ALL_LED_OFF_L, off & 0xFF)
+		self._device.write_byte_data(self._address,ALL_LED_OFF_H, off >> 8)
 		
 	def set_pwm(self, channel, on, off):
 		"""Sets a single PWM channel."""
-		self._device.write_byte_data(PCA9685_ADDRESS,LED0_ON_L+4*channel, on & 0xFF)
-		self._device.write_byte_data(PCA9685_ADDRESS,LED0_ON_H+4*channel, on >> 8)
-		self._device.write_byte_data(PCA9685_ADDRESS,LED0_OFF_L+4*channel, off & 0xFF)
-		self._device.write_byte_data(PCA9685_ADDRESS,LED0_OFF_H+4*channel, off >> 8)
+		self._device.write_byte_data(self._address,LED0_ON_L+4*channel, on & 0xFF)
+		self._device.write_byte_data(self._address,LED0_ON_H+4*channel, on >> 8)
+		self._device.write_byte_data(self._address,LED0_OFF_L+4*channel, off & 0xFF)
+		self._device.write_byte_data(self._address,LED0_OFF_H+4*channel, off >> 8)
 		
 		
 def set_servo_pulse(pwm,channel, pulse):

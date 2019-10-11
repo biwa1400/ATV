@@ -1,4 +1,4 @@
-import da.GPIO as GPIO
+import Adafruit_BBIO.GPIO as GPIO
 import Adafruit_BBIO.PWM as PWM 
 import Adafruit_BBIO.ADC as ADC
 
@@ -12,7 +12,7 @@ PIN_ADC = "P9_36"
 def init():
 	GPIO.setup(PIN_IN_A, GPIO.OUT)
 	GPIO.setup(PIN_IN_B, GPIO.OUT)
-	PWM.start(PIN_PWM, 50, 2000, polarity=0)
+	PWM.start(PIN_PWM, 50, 20, polarity=0)
 	ADC.setup()
 	
 def stop():
@@ -40,5 +40,9 @@ def release():
 	PWM.stop(PIN_PWM)
 	PWM.cleanup()
 
-
 init()
+
+
+if __name__ == '__main__':
+	release()
+	#turnLeft()
